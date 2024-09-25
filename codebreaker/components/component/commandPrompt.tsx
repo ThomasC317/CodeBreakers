@@ -7,6 +7,7 @@ import { faPaperPlane, faArrowRight } from '@fortawesome/free-solid-svg-icons';
  
 const CommandPrompt = () => {
     const [isPlaying, setIsPlaying] = useState(true);
+    const [remainingLives, setRemainingLives] = useState(10);
     const [input, setInput] = useState('');
     const [numberToGuess, setNumberToGuess] = useState(0);
     const [output, setOutput] = useState<any[]>([]);
@@ -104,8 +105,10 @@ const CommandPrompt = () => {
         // Si le jeu est en cours, on compare le guess
         if (isPlaying) {
           if (guess > numberToGuess) {
+            setRemainingLives(remainingLives -1)
             return '> Trop haut !';
           } else if (guess < numberToGuess) {
+            setRemainingLives(remainingLives -1)
             return '> Trop bas !';
           } else if (guess === numberToGuess) {
             setIsPlaying(false); // Fin de la partie, on passe en mode "redémarrage"
@@ -115,7 +118,8 @@ const CommandPrompt = () => {
           // Gestion du redémarrage
           if (command.toLowerCase() === "y" || command.toLowerCase() === "yes" || command.toLowerCase() === "oui" || command.toLowerCase() === "o") {
             setNumberToGuess(generateRandomNumber(1, 20)); // Nouveau nombre aléatoire
-            setIsPlaying(true); // On redémarre le jeu
+            setIsPlaying(true); // On redémarre le jeu*
+            setOutput([]);
             return '> Nouveau jeu commencé ! Essayez de deviner le nombre.';
           } else if (command.toLowerCase() === "n" || command.toLowerCase() === "no" || command.toLowerCase() === "non") {
             return `> Merci d'avoir joué !`;
@@ -142,8 +146,14 @@ const CommandPrompt = () => {
       };
 
       useEffect(() => {
-        setNumberToGuess(generateRandomNumber(1,20))
-      },[])
+        setNumberToGuess(generateRandomNumber(1,2000))
+        setRemainingLives(10);
+      },[isPlaying])
+
+          useEffect(() => {
+        if(remainingLives == 0)
+          setIsPlaying(false)
+      },[remainingLives])
 
     return (
         <div style={styles.container} className={`bg-black`}>
