@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { io } from 'socket.io-client';
+import {generateGuid} from '../../utils/math'
 const socket = io("http://localhost:8000")
 const CommandPrompt = () => {
     const [isPlaying, setIsPlaying] = useState(true);
@@ -14,7 +15,7 @@ const CommandPrompt = () => {
     const [output, setOutput] = useState<any[]>([]);
 
     const [room, setRoom] = useState(1);
-
+    const [players, setPlayers] = useState([]);
     type Styles = {
         container: Properties;
         outputContainer: Properties;
@@ -98,16 +99,23 @@ const CommandPrompt = () => {
       };
 
       useEffect(() => {
-        socket.on("receive_message", (data) => {
-         
+        socket.on('players_list', (playersList) => {
+          setPlayers(playersList);
         });
+     
+
+            // Nettoyage à la déconnexion
+        return () => {
+          socket.off('players_list');
+        };
       }, [socket]);
 
       // const senMessage = () => {
       //   socket.emit()
       // }
       const joinRoom = () => {
-          socket.emit("join_room", room);
+        const user = generateGuid();
+        socket.emit('join_room', { username: user, room: 'Room1' });
       };
       const generateRandomNumber = (min, max) => {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -172,9 +180,11 @@ const CommandPrompt = () => {
       },[remainingLives])
 
     return (
-
         <div style={styles.container} className={`bg-black`}>
-                <button onClick={joinRoom}>Join room</button>
+                <button onClick={joinRoom} disabled={players.length>0}>Join room</button>
+                {players.map((player, index) =>(
+                  <div key={index}>{player.player}</div>
+                ))}
         <div style={styles.outputContainer}>
           <div style={styles.output}>
             <div style={styles.outputEntry}>
