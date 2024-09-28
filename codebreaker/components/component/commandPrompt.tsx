@@ -6,15 +6,9 @@ import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import socket from "../../utils/socket";
 
 const CommandPrompt = () => {
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [remainingLives, setRemainingLives] = useState(10);
   const [input, setInput] = useState("");
-  const [guess, setGuess] = useState("");
-  const [numberToGuess, setNumberToGuess] = useState(0);
   const [players, setPlayers] = useState([]);
-  const [output, setOutput] = useState<any[]>([]);
   const [isTurn, setIsTurn] = useState(false);
-  const [room, setRoom] = useState(1);
   const [message, setMessage] = useState("");
   type Styles = {
     container: Properties;
