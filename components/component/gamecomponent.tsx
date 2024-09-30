@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import socket from "../../utils/socket";
 
-const CommandPrompt = () => {
+const GameComponent = (socket) => {
   const [input, setInput] = useState("");
   const [players, setPlayers] = useState([]);
   const [isTurn, setIsTurn] = useState(false);
@@ -162,53 +162,62 @@ const CommandPrompt = () => {
   };
 
   return (
-    <div>
-      <div style={styles.container} className={`bg-black`}>
-        <button onClick={handleJoinRoom}>Rejoindre une Room</button>
-        <button onClick={handleLaunchGame}>Lancer le Jeu</button>
-        <h1>{message}</h1>
-        <h3>Joueurs:</h3>
-        <ul>
-          {players.map((player, index) => (
-            <li
-              key={index}
-              style={{
-                backgroundColor:
-                  isTurn && player.roomId === socket.id
-                    ? "lightgreen"
-                    : "white",
-              }}
-            >
-              {player.player}
-            </li>
-          ))}
-        </ul>
-        <div style={styles.outputContainer}>
-          <div style={styles.output}>
-            <div style={styles.outputEntry}>
-              {">"} Bonjour et bienvenue sur CodeBreakers ! <br />
-            </div>
+<div>
+  <div style={{ display: "flex", justifyContent: "space-between" }}>
+    {/* Conteneur des joueurs en dehors du command prompt */}
+    <div style={{ marginRight: "20px", width: "200px" }}>
+      <h3>Joueurs:</h3>
+      <ul style={{ lineHeight: "2em" }}>
+        {players.map((player, index) => (
+          <li
+            key={index}
+            style={{
+              backgroundColor:
+                isTurn && player.roomId === socket.id
+                  ? "lightgreen"
+                  : "white",
+              marginBottom: "10px", // Espacement vertical
+            }}
+          >
+            {player.player}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    {/* Le reste du contenu dans le container principal */}
+    <div style={styles.container} className={`bg-black`}>
+      <button onClick={handleJoinRoom}>Rejoindre une Room</button>
+      <button onClick={handleLaunchGame}>Lancer le Jeu</button>
+      <h1>{message}</h1>
+      <div style={styles.outputContainer}>
+        <div style={styles.output}>
+          <div style={styles.outputEntry}>
+            {">"} Bonjour et bienvenue sur CodeBreakers ! <br />
           </div>
         </div>
-        <form onSubmit={handleInputSubmit} style={styles.form}>
-          <div style={{ position: "relative", width: "100%" }}>
-            <input
-              className={`bg-black`}
-              type="text"
-              value={input}
-              onChange={handleInputChange}
-              style={{ ...styles.input, paddingRight: "40px", width: "100%" }}
-            />
-            <button type="submit" style={{ ...styles.button }}>
-              <span style={{ marginRight: "0.5rem" }}>
-                <FontAwesomeIcon icon={faArrowRight} />
-              </span>
-            </button>
-          </div>
-        </form>
       </div>
+      <form onSubmit={handleInputSubmit} style={styles.form}>
+        <div style={{ position: "relative", width: "100%" }}>
+          <input
+            className={`bg-black`}
+            type="text"
+            value={input}
+            onChange={handleInputChange}
+            style={{ ...styles.input, paddingRight: "40px", width: "100%" }}
+          />
+          <button type="submit" style={{ ...styles.button }}>
+            <span style={{ marginRight: "0.5rem" }}>
+              <FontAwesomeIcon icon={faArrowRight} />
+            </span>
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
+</div>
+
   );
 };
 
-export default CommandPrompt;
+export default GameComponent;
