@@ -125,7 +125,7 @@ const CommandPrompt = () => {
     };
   }, []);
 
-  const handleGuess = (currentGuess:number) => {
+  const handleGuess = (currentGuess) => {
     // Deviner un nombre
     if (isTurn) {
       socket.emit("guess_number", {
