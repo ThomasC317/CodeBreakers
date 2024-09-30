@@ -1,211 +1,203 @@
+"use client";
+import { Properties } from "csstype";
+import { useEffect, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import socket from "../../utils/socket";
 
-"use client"
-import { Properties } from 'csstype';
-import { useEffect, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faArrowRight } from '@fortawesome/free-solid-svg-icons';
-import { io } from 'socket.io-client';
-import {generateGuid} from '../../utils/math'
-const socket = io("http://localhost:8000")
 const CommandPrompt = () => {
-    const [isPlaying, setIsPlaying] = useState(true);
-    const [remainingLives, setRemainingLives] = useState(10);
-    const [input, setInput] = useState('');
-    const [numberToGuess, setNumberToGuess] = useState(0);
-    const [output, setOutput] = useState<any[]>([]);
+  const [input, setInput] = useState("");
+  const [players, setPlayers] = useState([]);
+  const [isTurn, setIsTurn] = useState(false);
+  const [message, setMessage] = useState("");
+  type Styles = {
+    container: Properties;
+    outputContainer: Properties;
+    output: Properties;
+    outputEntry: Properties;
+    command: Properties;
+    form: Properties;
+    input: Properties;
+    button: Properties;
+    iconWrapper: Properties;
+    icon: Properties;
+  };
 
-    const [room, setRoom] = useState(1);
-    const [players, setPlayers] = useState([]);
-    type Styles = {
-        container: Properties;
-        outputContainer: Properties;
-        output: Properties;
-        outputEntry: Properties;
-        command: Properties;
-        form: Properties;
-        input: Properties;
-        button: Properties;
-        iconWrapper: Properties;
-        icon: Properties;
-      };
-    
-      const styles: Styles = {
-        container: {
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          fontFamily: 'monospace',
-          color: '#dcdcdc',
-          padding: '20px',
-          borderRadius: '10px',
-          height: '40rem',
-          border: '1px solid #333',
-          boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
-        },
-        outputContainer: {
-          flex: 1,
-          overflowY: 'auto',
-          marginBottom: '20px',
-        },
-        output: {
-          display: 'flex',
-          flexDirection: 'column',
-        },
-        outputEntry: {
-          marginBottom: '10px',
-        },
-        command: {
-          color: '#00ff00',
-        },
-        form: {
-          display: 'flex',
-          alignItems: 'center',
-        },
-        input: {
-          flex: 1,
-          padding: '10px',
-          color: '#fff',
-          border: '1px solid #00ff00',
-          borderRadius: '5px',
-          fontSize: '16px',
-          outline: 'none',
-        },
-        button: {
-          position: 'absolute',
-          right: '10px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          backgroundColor: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-          padding: '0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        iconWrapper: {
-          border: '1px solid #00ff00',
-          borderRadius: '50%',
-          padding: '5px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        icon: {
-          border: '1px solid #00ff00',
-          borderRadius: '50%',
-          padding: '5px',
-        },
-      };
+  const styles: Styles = {
+    container: {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      fontFamily: "monospace",
+      color: "#dcdcdc",
+      padding: "20px",
+      borderRadius: "10px",
+      height: "40rem",
+      border: "1px solid #333",
+      boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
+    },
+    outputContainer: {
+      flex: 1,
+      overflowY: "auto",
+      marginBottom: "20px",
+    },
+    output: {
+      display: "flex",
+      flexDirection: "column",
+    },
+    outputEntry: {
+      marginBottom: "10px",
+    },
+    command: {
+      color: "#00ff00",
+    },
+    form: {
+      display: "flex",
+      alignItems: "center",
+    },
+    input: {
+      flex: 1,
+      padding: "10px",
+      color: "#fff",
+      border: "1px solid #00ff00",
+      borderRadius: "5px",
+      fontSize: "16px",
+      outline: "none",
+    },
+    button: {
+      position: "absolute",
+      right: "10px",
+      top: "50%",
+      transform: "translateY(-50%)",
+      backgroundColor: "transparent",
+      border: "none",
+      cursor: "pointer",
+      padding: "0",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    iconWrapper: {
+      border: "1px solid #00ff00",
+      borderRadius: "50%",
+      padding: "5px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    icon: {
+      border: "1px solid #00ff00",
+      borderRadius: "50%",
+      padding: "5px",
+    },
+  };
 
-      useEffect(() => {
-        socket.on('players_list', (playersList) => {
-          setPlayers(playersList);
-        });
-     
+  useEffect(() => {
+    socket.on("connect", () => {
+      const socketId = socket.id;
+      console.log("Mon ID socket:", socketId);
+    });
 
-            // Nettoyage à la déconnexion
-        return () => {
-          socket.off('players_list');
-        };
-      }, [socket]);
+    socket.on("players_list", (playerList) => {
+      setPlayers(playerList);
+    });
 
-      // const senMessage = () => {
-      //   socket.emit()
-      // }
-      const joinRoom = () => {
-        const user = generateGuid();
-        socket.emit('join_room', { username: user, room: 'Room1' });
-      };
-      const generateRandomNumber = (min, max) => {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-      };
+    socket.on("your_turn", (data) => {
+      console.log(data);
+      setIsTurn(true);
+      setMessage(data.message);
+    });
 
-      const getCommandResult = (command) => {
-        const guess = Number(command); // Assure que la commande est un nombre pour la comparaison
-        console.log(command);
-        console.log(numberToGuess);
-      
-        // Si le jeu est en cours, on compare le guess
-        if (isPlaying) {
-          if (guess > numberToGuess) {
-            setRemainingLives(remainingLives -1)
-            return '> Trop haut !';
-          } else if (guess < numberToGuess) {
-            setRemainingLives(remainingLives -1)
-            return '> Trop bas !';
-          } else if (guess === numberToGuess) {
-            setIsPlaying(false); // Fin de la partie, on passe en mode "redémarrage"
-            return '> Bien joué ! Voulez-vous recommencer ? (y/n)';
-          }
-        } else {
-          // Gestion du redémarrage
-          if (command.toLowerCase() === "y" || command.toLowerCase() === "yes" || command.toLowerCase() === "oui" || command.toLowerCase() === "o") {
-            setNumberToGuess(generateRandomNumber(1, 20)); // Nouveau nombre aléatoire
-            setIsPlaying(true); // On redémarre le jeu*
-            setOutput([]);
-            return '> Nouveau jeu commencé ! Essayez de deviner le nombre.';
-          } else if (command.toLowerCase() === "n" || command.toLowerCase() === "no" || command.toLowerCase() === "non") {
-            return `> Merci d'avoir joué !`;
-          } else {
-            return '> Veuillez entrer "y" pour recommencer ou "n" pour quitter.';
-          }
-        }
-      };
+    socket.on("hint", (hintData) => {
+      setMessage(hintData.message);
+    });
 
-      const handleInputChange = (event) => {
-        setInput(event.target.value);
-      };
-      const handleInputSubmit = (event) => {
-        event.preventDefault();
-        if (input.trim().toLowerCase() !== 'command') {
-          processCommand(input);
-        }
-        setInput('');
-      };
+    socket.on("victory", (winnerIndex) => {
+      setMessage(`Player ${winnerIndex} a gagné!`);
+    });
 
-      const processCommand = (command) => {
-        const result = getCommandResult(command);
-        setOutput((prevOutput) => [...prevOutput, { command, result }]);
-      };
+    return () => {
+      socket.off("connect");
+      socket.off("players_list");
+      socket.off("your_turn");
+      socket.off("hint");
+      socket.off("victory");
+    };
+  }, []);
 
-      useEffect(() => {
-        setNumberToGuess(generateRandomNumber(1,2000))
-        setRemainingLives(10);
-      },[isPlaying])
+  const handleGuess = (currentGuess) => {
+    // Deviner un nombre
+    if (isTurn) {
+      socket.emit("guess_number", {
+        guess: Number(currentGuess),
+        room: "room1",
+      }); 
+      setIsTurn(false); 
+    } else {
+      alert("Ce n’est pas ton tour!");
+    }
+  };
 
-          useEffect(() => {
-        if(remainingLives == 0)
-          setIsPlaying(false)
-      },[remainingLives])
+  const handleInputChange = (event) => {
+    setInput(event.target.value);
+  };
 
-    return (
-        <div style={styles.container} className={`bg-black`}>
-                <button onClick={joinRoom} disabled={players.length>0}>Join room</button>
-                {players.map((player, index) =>(
-                  <div key={index}>{player.player}</div>
-                ))}
+  const handleInputSubmit = (event) => {
+    event.preventDefault();
+    if (input.trim() !== "") {
+      handleGuess(input); 
+      setInput(""); 
+    }
+  };
+
+  const handleJoinRoom = () => {
+    const username = prompt("Entre ton nom :");
+    const room = "room1"; 
+    socket.emit("join_room", { username, room });
+  };
+
+  const handleLaunchGame = () => {
+    // Lancer le jeu
+    socket.emit("launch_game", { room: "room1" });
+  };
+
+  return (
+    <div>
+      <div style={styles.container} className={`bg-black`}>
+        <button onClick={handleJoinRoom}>Rejoindre une Room</button>
+        <button onClick={handleLaunchGame}>Lancer le Jeu</button>
+        <h1>{message}</h1>
+        <h3>Joueurs:</h3>
+        <ul>
+          {players.map((player, index) => (
+            <li
+              key={index}
+              style={{
+                backgroundColor:
+                  isTurn && player.roomId === socket.id
+                    ? "lightgreen"
+                    : "white",
+              }}
+            >
+              {player.player}
+            </li>
+          ))}
+        </ul>
         <div style={styles.outputContainer}>
           <div style={styles.output}>
             <div style={styles.outputEntry}>
-              {'>'} Bonjour et bienvenue sur CodeBreakers ! <br />
+              {">"} Bonjour et bienvenue sur CodeBreakers ! <br />
             </div>
-            {output.map((entry, index) => (
-              <div key={index} style={styles.outputEntry}>
-                <div style={styles.command}>{entry.command ? `> ${entry.command}` : ''}</div>
-                <div>{entry.result}</div>
-              </div>
-            ))}
           </div>
         </div>
-        <form onSubmit={handleInputSubmit} style={styles.form} >
-          <div style={{ position: 'relative', width: '100%' }}>
+        <form onSubmit={handleInputSubmit} style={styles.form}>
+          <div style={{ position: "relative", width: "100%" }}>
             <input
-            className={`bg-black`}
+              className={`bg-black`}
               type="text"
               value={input}
               onChange={handleInputChange}
-              style={{ ...styles.input, paddingRight: '40px', width: '100%' }}
+              style={{ ...styles.input, paddingRight: "40px", width: "100%" }}
             />
             <button type="submit" style={{ ...styles.button }}>
               <span style={{ marginRight: "0.5rem" }}>
@@ -214,10 +206,9 @@ const CommandPrompt = () => {
             </button>
           </div>
         </form>
-        </div>
-    );
-
-}
-
+      </div>
+    </div>
+  );
+};
 
 export default CommandPrompt;
