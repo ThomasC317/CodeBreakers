@@ -1,56 +1,55 @@
-import { useState } from "react";
+"use client"
+import { useEffect, useState } from "react";
 import socket from "../../utils/socket";
 import LobbySelectionComponent from "./lobbyselectioncomponent";
 import WaitingRoomComponent from "./waitingroomcomponent";
-import GameComponent from "./GameComponent";
+import GameComponent from "./gamecomponent";
 
 const MainPageComponent = () => {
     const [gameStarted, setGameStarted] = useState(false);
     const [roomJoined, setRoomJoined] = useState(false);
     
     useEffect(() => {
-        // socket.on("connect", () => {
-        //   const socketId = socket.id;
-        //   console.log("Mon ID socket:", socketId);
-        // });
-    
-        socket.on("get_lobbies", (availableLobbies) => {
-            setLobbies(availableLobbies);
+        socket.on("joined", () => {
+          setRoomJoined(true);
         });
-    
-        // socket.on("your_turn", (data) => {
-        //   console.log(data);
-        //   setIsTurn(true);
-        //   setMessage(data.message);
-        // });
-    
-        // socket.on("hint", (hintData) => {
-        //   setMessage(hintData.message);
-        // });
-    
-        // socket.on("victory", (winnerIndex) => {
-        //   setMessage(`Player ${winnerIndex} a gagné!`);
-        // });
+
+        socket.on("lobby_created", () => {
+          setRoomJoined(true);
+        });
+
+        socket.on("disconnected",() => {
+          setRoomJoined(false);
+          setGameStarted(false);
+        })
+
+        socket.on("number_to_guess",() => {
+          console.log("launched!")
+          setGameStarted(true);
+          setRoomJoined(false);
+        })
     
         return () => {
-          socket.off("get_lobbies");
+          socket.off("joined");
+          socket.off("disconnected");
+          socket.off("number_to_guess");
         };
       }, []);
 
     return (
         <div>
         {!gameStarted && !roomJoined && (
-            <LobbySelectionComponent socket={socket} />
+            <LobbySelectionComponent/>
           )}
           {roomJoined && !gameStarted && (
-            <WaitingRoomComponent socket={socket} />
+            <WaitingRoomComponent />
           )}
           {gameStarted && (
-            <GameComponent socket={socket} />
+            <GameComponent />
           )}
           </div>
     )
 
 }
 
-export default LobbySelectionComponent
+export default MainPageComponent

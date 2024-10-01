@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import socket from "../../utils/socket";
 
-const GameComponent = (socket) => {
+const GameComponent = () => {
   const [input, setInput] = useState("");
   const [players, setPlayers] = useState([]);
   const [isTurn, setIsTurn] = useState(false);
