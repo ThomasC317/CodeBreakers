@@ -33,6 +33,7 @@ const MainPageComponent = () => {
           socket.off("joined");
           socket.off("disconnected");
           socket.off("number_to_guess");
+          socket.off("lobby_created");
         };
       }, []);
 

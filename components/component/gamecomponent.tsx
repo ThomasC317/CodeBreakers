@@ -93,11 +93,6 @@ const GameComponent = () => {
   };
 
   useEffect(() => {
-    socket.on("connect", () => {
-      const socketId = socket.id;
-      console.log("Mon ID socket:", socketId);
-    });
-
     socket.on("players_list", (playerList) => {
       setPlayers(playerList);
     });
@@ -150,17 +145,6 @@ const GameComponent = () => {
     }
   };
 
-  const handleJoinRoom = () => {
-    const username = prompt("Entre ton nom :");
-    const room = "room1"; 
-    socket.emit("join_room", { username, room });
-  };
-
-  const handleLaunchGame = () => {
-    // Lancer le jeu
-    socket.emit("launch_game", { room: "room1" });
-  };
-
   return (
 <div>
   <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -187,8 +171,6 @@ const GameComponent = () => {
 
     {/* Le reste du contenu dans le container principal */}
     <div style={styles.container} className={`bg-black`}>
-      <button onClick={handleJoinRoom}>Rejoindre une Room</button>
-      <button onClick={handleLaunchGame}>Lancer le Jeu</button>
       <h1>{message}</h1>
       <div style={styles.outputContainer}>
         <div style={styles.output}>

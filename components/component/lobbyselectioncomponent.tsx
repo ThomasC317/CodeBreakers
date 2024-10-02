@@ -5,30 +5,12 @@ const LobbySelectionComponent = () => {
     const [lobbies, setLobbies] = useState([]);
   
     useEffect(() => {
-        // socket.on("connect", () => {
-        //   const socketId = socket.id;
-        //   console.log("Mon ID socket:", socketId);
-        // });
         console.log(socket)
         socket.on("lobbies_list", (availableLobbies) => {
           console.log(availableLobbies)
             setLobbies(availableLobbies);
         });
-    
-        // socket.on("your_turn", (data) => {
-        //   console.log(data);
-        //   setIsTurn(true);
-        //   setMessage(data.message);
-        // });
-    
-        // socket.on("hint", (hintData) => {
-        //   setMessage(hintData.message);
-        // });
-    
-        // socket.on("victory", (winnerIndex) => {
-        //   setMessage(`Player ${winnerIndex} a gagné!`);
-        // });
-    
+        
         return () => {
           socket.off("lobbies_list");
         };

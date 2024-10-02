@@ -10,32 +10,19 @@ const WaitingRoomComponent = () => {
             setPlayers(playerList);
           });
 
-        //   socket.on("lobbies_list", (availableLobbies) => {
-        //     setLobbyId(availableLobbies.length +1);
-        //   });
         socket.on("lobby_id", (lobbyId) => {
             console.log("set lobby !")
             setLobbyId(lobbyId);
         });
-
-        // socket.on("disconnected",() => {
-        //   setRoomJoined(false);
-        //   setGameStarted(false);
-        // })
-
-        // socket.on("number_to_guess",() => {
-        //   setGameStarted(true)
-        // })
     
         return () => {
           socket.off("players_list");
           socket.off("lobby_id");
-          socket.off("lobbies_list");
         };
       }, []);
       const handleLaunchGame = () => {
         // Lancer le jeu
-        socket.emit("launch_game", { lobbyId: lobbyId });
+        socket.emit("launch_game");
       };
     return (
         <div>
