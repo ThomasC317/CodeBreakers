@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import socket from "../../utils/socket";
+import { Properties } from 'csstype';
 
 const LobbySelectionComponent = () => {
   const [lobbies, setLobbies] = useState([]);
@@ -31,7 +32,17 @@ const LobbySelectionComponent = () => {
     socket.emit("get_lobbies");
   };
 
-  const styles = {
+  type Styles = {
+      container: Properties
+      lobbyList: Properties
+      lobbyItem: Properties
+      lobbyItemHover: Properties
+      button: Properties
+      buttonHover: Properties
+      heading: Properties
+  }
+
+  const styles:Styles = {
     container: {
       padding: "20px",
       backgroundColor: "#1c1c1c",

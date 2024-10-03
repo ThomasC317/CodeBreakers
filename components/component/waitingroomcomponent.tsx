@@ -1,12 +1,22 @@
 import { useEffect, useState } from "react";
 import socket from "../../utils/socket";
+import { Properties } from "csstype";
 
 const WaitingRoomComponent = ({ players }) => {
   const handleLaunchGame = () => {
     socket.emit("launch_game");
   };
 
-  const styles = {
+  type Styles = {
+    container: Properties
+    playerList: Properties
+    playerItem: Properties
+    button: Properties
+    buttonHover: Properties
+    heading: Properties
+}
+
+  const styles:Styles = {
     container: {
       padding: "20px",
       backgroundColor: "#1c1c1c",
