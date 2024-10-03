@@ -2,30 +2,7 @@ import { useEffect, useState } from "react";
 import socket from "../../utils/socket";
 
 const WaitingRoomComponent = ({ players }) => {
-  // const [players, setPlayers] = useState([]);
-  const [lobbyId, setLobbyId] = useState(0);
-  useEffect(() => {
-    // socket.on("players_list", (playerList) => {
-    //     console.log(playerList)
-    //     setPlayers(playerList);
-    //   });
-
-    socket.on("lobby_id", (lobbyId) => {
-      console.log("set lobby !");
-      setLobbyId(lobbyId);
-    });
-
-    socket.on("joined", (lobbyId) => {
-      console.log("test");
-    });
-
-    return () => {
-      // socket.off("players_list");
-      socket.off("lobby_id");
-    };
-  }, []);
   const handleLaunchGame = () => {
-    // Lancer le jeu
     socket.emit("launch_game");
   };
   return (
@@ -37,7 +14,7 @@ const WaitingRoomComponent = ({ players }) => {
             <li
               key={index}
               style={{
-                marginBottom: "10px", // Espacement vertical
+                marginBottom: "10px",
               }}
             >
               {player.player}

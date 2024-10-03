@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import socket from "../../utils/socket";
 
-const GameComponent = ({players}) => {
+const GameComponent = ({ players }) => {
   const [input, setInput] = useState("");
   // const [players, setPlayers] = useState([]);
   const [isTurn, setIsTurn] = useState(false);
@@ -96,14 +96,14 @@ const GameComponent = ({players}) => {
 
   useEffect(() => {
     socket.on("your_turn", () => {
-      console.log("votre tour")
+      console.log("votre tour");
       setIsTurn(true);
     });
 
     socket.on("current_player", ({ player }) => {
       console.log(`Current player is: ${player}`);
-      console.log(players)
-      setCurrentPlayer(player);       
+      console.log(players);
+      setCurrentPlayer(player);
     });
     socket.on("hint", (hintData) => {
       setHint(hintData.message);
@@ -114,8 +114,6 @@ const GameComponent = ({players}) => {
     });
 
     return () => {
-      socket.off("connect");
-      socket.off("players_list");
       socket.off("current_player");
       socket.off("your_turn");
       socket.off("hint");
@@ -124,19 +122,17 @@ const GameComponent = ({players}) => {
   }, []);
 
   useEffect(() => {
-    if(isTurn)
-      setMessage("C'est votre tour !");
-    else
-      setMessage("C'est le tour du joueur "+ currentPlayer);
-  },[isTurn, currentPlayer])
+    if (isTurn) setMessage("C'est votre tour !");
+    else setMessage("C'est le tour du joueur " + currentPlayer);
+  }, [isTurn, currentPlayer]);
 
   const handleGuess = (currentGuess) => {
     // Deviner un nombre
     if (isTurn) {
       socket.emit("guess_number", {
-        guess: Number(currentGuess)
-      }); 
-      setIsTurn(false); 
+        guess: Number(currentGuess),
+      });
+      setIsTurn(false);
     } else {
       alert("Ce n’est pas ton tour!");
     }
@@ -149,66 +145,63 @@ const GameComponent = ({players}) => {
   const handleInputSubmit = (event) => {
     event.preventDefault();
     if (input.trim() !== "") {
-      handleGuess(input); 
-      setInput(""); 
+      handleGuess(input);
+      setInput("");
     }
   };
 
   return (
-<div>
-  <div style={{ display: "flex", justifyContent: "space-between" }}>
-    {/* Conteneur des joueurs en dehors du command prompt */}
-    <div style={{ marginRight: "20px", width: "200px" }}>
-      <h3>Joueurs:</h3>
-      <ul style={{ lineHeight: "2em" }}>
-        {players.map((player, index) => (
-          <li
-            key={index}
-            style={{
-              backgroundColor:
-                currentPlayer == player.player
-                  ? "lightgreen"
-                  : "white",
-              marginBottom: "10px", // Espacement vertical
-            }}
-          >
-            {player.player}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        {/* Conteneur des joueurs en dehors du command prompt */}
+        <div style={{ marginRight: "20px", width: "200px" }}>
+          <h3>Joueurs:</h3>
+          <ul style={{ lineHeight: "2em" }}>
+            {players.map((player, index) => (
+              <li
+                key={index}
+                style={{
+                  backgroundColor:
+                    currentPlayer == player.player ? "lightgreen" : "white",
+                  marginBottom: "10px", // Espacement vertical
+                }}
+              >
+                {player.player}
+              </li>
+            ))}
+          </ul>
+        </div>
 
-    {/* Le reste du contenu dans le container principal */}
-    <div style={styles.container} className={`bg-black`}>
-      <h1>{message}</h1>
-      <h1>{hint}</h1>
-      <div style={styles.outputContainer}>
-        <div style={styles.output}>
-          <div style={styles.outputEntry}>
-            {">"} Bonjour et bienvenue sur CodeBreakers ! <br />
+        {/* Le reste du contenu dans le container principal */}
+        <div style={styles.container} className={`bg-black`}>
+          <h1>{message}</h1>
+          <h1>{hint}</h1>
+          <div style={styles.outputContainer}>
+            <div style={styles.output}>
+              <div style={styles.outputEntry}>
+                {">"} Bonjour et bienvenue sur CodeBreakers ! <br />
+              </div>
+            </div>
           </div>
+          <form onSubmit={handleInputSubmit} style={styles.form}>
+            <div style={{ position: "relative", width: "100%" }}>
+              <input
+                className={`bg-black`}
+                type="text"
+                value={input}
+                onChange={handleInputChange}
+                style={{ ...styles.input, paddingRight: "40px", width: "100%" }}
+              />
+              <button type="submit" style={{ ...styles.button }}>
+                <span style={{ marginRight: "0.5rem" }}>
+                  <FontAwesomeIcon icon={faArrowRight} />
+                </span>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-      <form onSubmit={handleInputSubmit} style={styles.form}>
-        <div style={{ position: "relative", width: "100%" }}>
-          <input
-            className={`bg-black`}
-            type="text"
-            value={input}
-            onChange={handleInputChange}
-            style={{ ...styles.input, paddingRight: "40px", width: "100%" }}
-          />
-          <button type="submit" style={{ ...styles.button }}>
-            <span style={{ marginRight: "0.5rem" }}>
-              <FontAwesomeIcon icon={faArrowRight} />
-            </span>
-          </button>
-        </div>
-      </form>
     </div>
-  </div>
-</div>
-
   );
 };
 
