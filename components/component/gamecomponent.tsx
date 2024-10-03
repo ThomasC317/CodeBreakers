@@ -7,11 +7,11 @@ import socket from "../../utils/socket";
 
 const GameComponent = ({ players }) => {
   const [input, setInput] = useState("");
-  // const [players, setPlayers] = useState([]);
   const [isTurn, setIsTurn] = useState(false);
   const [message, setMessage] = useState("");
   const [hint, setHint] = useState("");
   const [currentPlayer, setCurrentPlayer] = useState();
+
   type Styles = {
     container: Properties;
     outputContainer: Properties;
@@ -23,6 +23,8 @@ const GameComponent = ({ players }) => {
     button: Properties;
     iconWrapper: Properties;
     icon: Properties;
+    playerList: Properties;
+    playerCard: Properties;
   };
 
   const styles: Styles = {
@@ -30,13 +32,15 @@ const GameComponent = ({ players }) => {
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
-      fontFamily: "monospace",
-      color: "#dcdcdc",
+      fontFamily: "'Fira Code', monospace",
+      color: "#00ff00", // Vert néon
       padding: "20px",
-      borderRadius: "10px",
+      borderRadius: "15px",
       height: "40rem",
       border: "1px solid #333",
-      boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
+      backgroundColor: "#1a1a1a", // Noir plus clair
+      boxShadow: "0 0 15px rgba(0, 255, 0, 0.5)", // Effet néon
+      transition: "all 0.3s ease",
     },
     outputContainer: {
       flex: 1,
@@ -59,12 +63,14 @@ const GameComponent = ({ players }) => {
     },
     input: {
       flex: 1,
-      padding: "10px",
+      padding: "12px 20px",
       color: "#fff",
+      backgroundColor: "#333",
       border: "1px solid #00ff00",
       borderRadius: "5px",
-      fontSize: "16px",
+      fontSize: "18px",
       outline: "none",
+      transition: "border-color 0.3s ease",
     },
     button: {
       position: "absolute",
@@ -82,7 +88,7 @@ const GameComponent = ({ players }) => {
     iconWrapper: {
       border: "1px solid #00ff00",
       borderRadius: "50%",
-      padding: "5px",
+      padding: "10px",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -91,6 +97,25 @@ const GameComponent = ({ players }) => {
       border: "1px solid #00ff00",
       borderRadius: "50%",
       padding: "5px",
+    },
+    playerList: {
+      marginRight: "20px",
+      width: "250px",
+      backgroundColor: "#111", // Fond sombre pour les joueurs
+      padding: "20px",
+      borderRadius: "10px",
+      boxShadow: "0 0 10px rgba(0, 255, 0, 0.3)", // Effet néon autour des joueurs
+    },
+    playerCard: {
+      backgroundColor: "#333",
+      color: "#00ff00",
+      padding: "10px",
+      borderRadius: "5px",
+      marginBottom: "10px",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      transition: "background-color 0.3s ease", // Transition fluide pour le changement de couleur
     },
   };
 
@@ -105,6 +130,7 @@ const GameComponent = ({ players }) => {
       console.log(players);
       setCurrentPlayer(player);
     });
+
     socket.on("hint", (hintData) => {
       setHint(hintData.message);
     });
@@ -127,7 +153,6 @@ const GameComponent = ({ players }) => {
   }, [isTurn, currentPlayer]);
 
   const handleGuess = (currentGuess) => {
-    // Deviner un nombre
     if (isTurn) {
       socket.emit("guess_number", {
         guess: Number(currentGuess),
@@ -151,55 +176,53 @@ const GameComponent = ({ players }) => {
   };
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Conteneur des joueurs en dehors du command prompt */}
-        <div style={{ marginRight: "20px", width: "200px" }}>
-          <h3>Joueurs:</h3>
-          <ul style={{ lineHeight: "2em" }}>
-            {players.map((player, index) => (
-              <li
-                key={index}
-                style={{
-                  backgroundColor:
-                    currentPlayer == player.player ? "lightgreen" : "white",
-                  marginBottom: "10px", // Espacement vertical
-                }}
-              >
-                {player.player}
-              </li>
-            ))}
-          </ul>
-        </div>
+    <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div style={styles.playerList}>
+        <h3>Joueurs:</h3>
+        <ul style={{ lineHeight: "2em", padding: 0 }}>
+          {players.map((player, index) => (
+            <li
+              key={index}
+              style={{
+                ...styles.playerCard,
+                backgroundColor:
+                  currentPlayer === player.player ? "#00ff00" : "#333", // Joueur en cours en vert
+                color: currentPlayer === player.player ? "#000" : "#00ff00",
+              }}
+            >
+              {player.player}
+            </li>
+          ))}
+        </ul>
+      </div>
 
-        {/* Le reste du contenu dans le container principal */}
-        <div style={styles.container} className={`bg-black`}>
-          <h1>{message}</h1>
-          <h1>{hint}</h1>
-          <div style={styles.outputContainer}>
-            <div style={styles.output}>
-              <div style={styles.outputEntry}>
-                {">"} Bonjour et bienvenue sur CodeBreakers ! <br />
-              </div>
+      <div style={styles.container}>
+        <h1>{message}</h1>
+        <h2>{hint}</h2>
+        <div style={styles.outputContainer}>
+          <div style={styles.output}>
+            <div style={styles.outputEntry}>
+              {">"} Bonjour et bienvenue sur CodeBreakers ! <br />
             </div>
           </div>
-          <form onSubmit={handleInputSubmit} style={styles.form}>
-            <div style={{ position: "relative", width: "100%" }}>
-              <input
-                className={`bg-black`}
-                type="text"
-                value={input}
-                onChange={handleInputChange}
-                style={{ ...styles.input, paddingRight: "40px", width: "100%" }}
-              />
-              <button type="submit" style={{ ...styles.button }}>
-                <span style={{ marginRight: "0.5rem" }}>
-                  <FontAwesomeIcon icon={faArrowRight} />
-                </span>
-              </button>
-            </div>
-          </form>
         </div>
+
+        <form onSubmit={handleInputSubmit} style={styles.form}>
+          <div style={{ position: "relative", width: "100%" }}>
+            <input
+              className={`bg-black`}
+              type="text"
+              value={input}
+              onChange={handleInputChange}
+              style={{ ...styles.input, paddingRight: "40px", width: "100%" }}
+            />
+            <button type="submit" style={styles.button}>
+              <span style={styles.iconWrapper}>
+                <FontAwesomeIcon icon={faArrowRight} />
+              </span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
