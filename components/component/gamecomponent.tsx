@@ -5,11 +5,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import socket from "../../utils/socket";
 
-const GameComponent = () => {
+const GameComponent = ({players}) => {
   const [input, setInput] = useState("");
-  const [players, setPlayers] = useState([]);
+  // const [players, setPlayers] = useState([]);
   const [isTurn, setIsTurn] = useState(false);
   const [message, setMessage] = useState("");
+  const [hint, setHint] = useState("");
+  const [currentPlayer, setCurrentPlayer] = useState();
   type Styles = {
     container: Properties;
     outputContainer: Properties;
@@ -93,39 +95,46 @@ const GameComponent = () => {
   };
 
   useEffect(() => {
-    socket.on("players_list", (playerList) => {
-      setPlayers(playerList);
-    });
-
-    socket.on("your_turn", (data) => {
-      console.log(data);
+    socket.on("your_turn", () => {
+      console.log("votre tour")
       setIsTurn(true);
-      setMessage(data.message);
     });
 
+    socket.on("current_player", ({ player }) => {
+      console.log(`Current player is: ${player}`);
+      console.log(players)
+      setCurrentPlayer(player);       
+    });
     socket.on("hint", (hintData) => {
-      setMessage(hintData.message);
+      setHint(hintData.message);
     });
 
     socket.on("victory", (winnerIndex) => {
-      setMessage(`Player ${winnerIndex} a gagné!`);
+      setMessage(`Player ${winnerIndex.player} a gagné!`);
     });
 
     return () => {
       socket.off("connect");
       socket.off("players_list");
+      socket.off("current_player");
       socket.off("your_turn");
       socket.off("hint");
       socket.off("victory");
     };
   }, []);
 
+  useEffect(() => {
+    if(isTurn)
+      setMessage("C'est votre tour !");
+    else
+      setMessage("C'est le tour du joueur "+ currentPlayer);
+  },[isTurn, currentPlayer])
+
   const handleGuess = (currentGuess) => {
     // Deviner un nombre
     if (isTurn) {
       socket.emit("guess_number", {
-        guess: Number(currentGuess),
-        room: "room1",
+        guess: Number(currentGuess)
       }); 
       setIsTurn(false); 
     } else {
@@ -157,7 +166,7 @@ const GameComponent = () => {
             key={index}
             style={{
               backgroundColor:
-                isTurn && player.roomId === socket.id
+                currentPlayer == player.player
                   ? "lightgreen"
                   : "white",
               marginBottom: "10px", // Espacement vertical
@@ -172,6 +181,7 @@ const GameComponent = () => {
     {/* Le reste du contenu dans le container principal */}
     <div style={styles.container} className={`bg-black`}>
       <h1>{message}</h1>
+      <h1>{hint}</h1>
       <div style={styles.outputContainer}>
         <div style={styles.output}>
           <div style={styles.outputEntry}>

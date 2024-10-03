@@ -10,6 +10,11 @@ const LobbySelectionComponent = () => {
           console.log(availableLobbies)
             setLobbies(availableLobbies);
         });
+
+        socket.on("get_lobbies", (availableLobbies) => {
+          console.log(availableLobbies)
+          setLobbies(availableLobbies);
+        });
         
         return () => {
           socket.off("lobbies_list");
@@ -18,7 +23,8 @@ const LobbySelectionComponent = () => {
 
       const setLobby = (lobby) => {
         const username = prompt("Entre ton nom :");
-        const lobbyId = lobby.id;
+        const lobbyId = lobby.lobbyId;
+        console.log(lobbyId)
         socket.emit("join_room", { username, lobbyId });
       }
 
@@ -31,7 +37,7 @@ const LobbySelectionComponent = () => {
       return (
         <div>
             {lobbies.map((lobby,index) => (
-                <div key={index} onClick={setLobby}>{lobby.name}</div>
+                <div key={index} onClick={()=>setLobby(lobby)}>{lobby.name}</div>
             ))}
             <button onClick={createLobby}>Créer un lobby</button>
         </div>

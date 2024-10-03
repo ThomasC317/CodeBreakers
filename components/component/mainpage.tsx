@@ -8,14 +8,15 @@ import GameComponent from "./gamecomponent";
 const MainPageComponent = () => {
     const [gameStarted, setGameStarted] = useState(false);
     const [roomJoined, setRoomJoined] = useState(false);
+    const [playerList, setPlayersList] = useState([]);
     
     useEffect(() => {
         socket.on("joined", () => {
           setRoomJoined(true);
         });
 
-        socket.on("lobby_created", () => {
-          setRoomJoined(true);
+        socket.on("players_list", (playerList) => {
+          setPlayersList(playerList);
         });
 
         socket.on("disconnected",() => {
@@ -23,8 +24,7 @@ const MainPageComponent = () => {
           setGameStarted(false);
         })
 
-        socket.on("number_to_guess",() => {
-          console.log("launched!")
+        socket.on("game_launched",() => {
           setGameStarted(true);
           setRoomJoined(false);
         })
@@ -32,8 +32,8 @@ const MainPageComponent = () => {
         return () => {
           socket.off("joined");
           socket.off("disconnected");
+          socket.off("players_list")
           socket.off("number_to_guess");
-          socket.off("lobby_created");
         };
       }, []);
 
@@ -43,10 +43,10 @@ const MainPageComponent = () => {
             <LobbySelectionComponent/>
           )}
           {roomJoined && !gameStarted && (
-            <WaitingRoomComponent />
+            <WaitingRoomComponent players={playerList}/>
           )}
           {gameStarted && (
-            <GameComponent />
+            <GameComponent players={playerList} />
           )}
           </div>
     )
