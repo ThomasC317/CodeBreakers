@@ -167,6 +167,11 @@ const GameComponent = ({ players }) => {
     setInput(event.target.value);
   };
 
+  const handleDisconnect = () => {
+    socket.emit("leave_lobby")
+  }
+
+
   const handleInputSubmit = (event) => {
     event.preventDefault();
     if (input.trim() !== "") {
@@ -176,55 +181,72 @@ const GameComponent = ({ players }) => {
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "space-between" }}>
-      <div style={styles.playerList}>
-        <h3>Joueurs:</h3>
-        <ul style={{ lineHeight: "2em", padding: 0 }}>
-          {players.map((player, index) => (
-            <li
-              key={index}
-              style={{
-                ...styles.playerCard,
-                backgroundColor:
-                  currentPlayer === player.player ? "#00ff00" : "#333", // Joueur en cours en vert
-                color: currentPlayer === player.player ? "#000" : "#00ff00",
-              }}
-            >
-              {player.player}
-            </li>
-          ))}
-        </ul>
-      </div>
+<div style={{ display: "flex", justifyContent: "space-between" }}>
+  <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div style={styles.playerList}>
+      <h3>Joueurs:</h3>
+      <ul style={{ lineHeight: "2em", padding: 0 }}>
+        {players.map((player, index) => (
+          <li
+            key={index}
+            style={{
+              ...styles.playerCard,
+              backgroundColor: currentPlayer === player.player ? "#00ff00" : "#333", // Joueur en cours en vert
+              color: currentPlayer === player.player ? "#000" : "#00ff00",
+            }}
+          >
+            {player.player}
+          </li>
+        ))}
+      </ul>
+      <button
+      style={{  backgroundColor: "#00ff00",
+        color: "#fff",
+        border: "none",
+        borderRadius: "8px",
+        padding: "10px 20px",
+        cursor: "pointer",
+        fontSize: "16px",
+        marginTop: "20px",
+        transition: "background-color 0.3s ease",}}
+      onClick={handleDisconnect}
+    >
+      Se déconnecter
+    </button>
+    </div>
 
-      <div style={styles.container}>
-        <h1>{message}</h1>
-        <h2>{hint}</h2>
-        <div style={styles.outputContainer}>
-          <div style={styles.output}>
-            <div style={styles.outputEntry}>
-              {">"} Bonjour et bienvenue sur CodeBreakers ! <br />
-            </div>
-          </div>
+  </div>
+
+  <div style={styles.container}>
+    <h1>{message}</h1>
+    <h2>{hint}</h2>
+    <div style={styles.outputContainer}>
+      <div style={styles.output}>
+        <div style={styles.outputEntry}>
+          {">"} Bonjour et bienvenue sur CodeBreakers ! <br />
         </div>
-
-        <form onSubmit={handleInputSubmit} style={styles.form}>
-          <div style={{ position: "relative", width: "100%" }}>
-            <input
-              className={`bg-black`}
-              type="text"
-              value={input}
-              onChange={handleInputChange}
-              style={{ ...styles.input, paddingRight: "40px", width: "100%" }}
-            />
-            <button type="submit" style={styles.button}>
-              <span style={styles.iconWrapper}>
-                <FontAwesomeIcon icon={faArrowRight} />
-              </span>
-            </button>
-          </div>
-        </form>
       </div>
     </div>
+
+    <form onSubmit={handleInputSubmit} style={styles.form}>
+      <div style={{ position: "relative", width: "100%" }}>
+        <input
+          className={`bg-black`}
+          disabled={!isTurn}
+          type="text"
+          value={input}
+          onChange={handleInputChange}
+          style={{ ...styles.input, paddingRight: "40px", width: "100%" }}
+        />
+        <button type="submit" style={styles.button}>
+          <span style={styles.iconWrapper}>
+            <FontAwesomeIcon icon={faArrowRight} />
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
   );
 };
 

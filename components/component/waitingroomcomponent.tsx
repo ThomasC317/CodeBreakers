@@ -7,22 +7,37 @@ const WaitingRoomComponent = ({ players }) => {
     socket.emit("launch_game");
   };
 
-  type Styles = {
-    container: Properties
-    playerList: Properties
-    playerItem: Properties
-    button: Properties
-    buttonHover: Properties
-    heading: Properties
-}
+  const handleDisconnect = () => {
+    socket.emit("leave_lobby");
+  };
 
-  const styles:Styles = {
+  type Styles = {
+    container: Properties;
+    playerListContainer: Properties;
+    playerList: Properties;
+    playerItem: Properties;
+    button: Properties;
+    buttonHover: Properties;
+    heading: Properties;
+    buttonContainer: Properties;
+  };
+
+  const styles: Styles = {
     container: {
       padding: "20px",
       backgroundColor: "#1c1c1c",
       borderRadius: "10px",
       color: "#f5f5f5",
       fontFamily: "monospace",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    playerListContainer: {
+      width: "100%",
+      textAlign: "center",
+      marginBottom: "20px",
     },
     playerList: {
       listStyleType: "none",
@@ -34,9 +49,10 @@ const WaitingRoomComponent = ({ players }) => {
       padding: "10px",
       margin: "10px 0",
       borderRadius: "8px",
+      color: "#fff",
     },
     button: {
-      backgroundColor: "#007bff",
+      backgroundColor: "#00ff00",
       color: "#fff",
       border: "none",
       borderRadius: "8px",
@@ -47,19 +63,26 @@ const WaitingRoomComponent = ({ players }) => {
       transition: "background-color 0.3s ease",
     },
     buttonHover: {
-      backgroundColor: "#0056b3",
+      backgroundColor: "#00ff00",
     },
     heading: {
       fontSize: "24px",
       marginBottom: "20px",
       textAlign: "center",
     },
+    buttonContainer: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "10px",
+      alignItems: "center",
+      marginTop: "20px",
+    },
   };
 
   return (
     <div style={styles.container}>
       <h1 style={styles.heading}>Salle d'attente</h1>
-      <div style={{ marginRight: "20px", width: "200px" }}>
+      <div style={styles.playerListContainer}>
         <h3>Joueurs:</h3>
         <ul style={styles.playerList}>
           {players.map((player, index) => (
@@ -69,14 +92,24 @@ const WaitingRoomComponent = ({ players }) => {
           ))}
         </ul>
       </div>
-      <button
-        style={styles.button}
-        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
-        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
-        onClick={handleLaunchGame}
-      >
-        Lancer le Jeu
-      </button>
+      <div style={styles.buttonContainer}>
+        <button
+          style={styles.button}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor)}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = styles.button.backgroundColor)}
+          onClick={handleLaunchGame}
+        >
+          Lancer le Jeu
+        </button>
+        <button
+          style={styles.button}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor)}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = styles.button.backgroundColor)}
+          onClick={handleDisconnect}
+        >
+          Se déconnecter
+        </button>
+      </div>
     </div>
   );
 };

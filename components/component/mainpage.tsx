@@ -29,6 +29,11 @@ const MainPageComponent = () => {
       setRoomJoined(false);
     });
 
+    socket.on("player_left", () => {
+      setRoomJoined(false);
+      setGameStarted(false);
+    })
+
     return () => {
       socket.off("joined");
       socket.off("disconnected");
@@ -36,6 +41,8 @@ const MainPageComponent = () => {
       socket.off("game_launched");
     };
   }, []);
+
+
 
   return (
     <div>
